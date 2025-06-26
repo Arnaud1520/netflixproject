@@ -1,12 +1,22 @@
 'use client';
 import axios from 'axios';
-import Link from 'next/link'; // Import du composant de navigation Next.js
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function MoviesPage() {
   const [categories, setCategories] = useState([]);
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [newMovie, setNewMovie] = useState({
+    title: '',
+    description: '',
+    release_year: '',
+    rating: '',
+    poster_url: '',
+    trailer_url: '',
+    category_id: '',
+  });
 
   useEffect(() => {
     const fetchCategories = axios.get('/api/categories');
@@ -23,6 +33,39 @@ export default function MoviesPage() {
   if (error) return <p>{error}</p>;
   if (!categories.length || !movies.length) return <p>Chargement...</p>;
 
+  const handleCreateMovie = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('/api/movies', {
+        ...newMovie,
+        release_year: parseInt(newMovie.release_year),
+        rating: parseFloat(newMovie.rating),
+        category_id: parseInt(newMovie.category_id),
+      });
+
+      const movieId = response.data.movieId;
+      const newMovieObject = {
+        ...newMovie,
+        id: movieId,
+        categories: [{ id: newMovie.category_id }],
+      };
+
+      setMovies(prev => [...prev, newMovieObject]);
+      setNewMovie({
+        title: '',
+        description: '',
+        release_year: '',
+        rating: '',
+        poster_url: '',
+        trailer_url: '',
+        category_id: '',
+      });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Erreur lors de la création du film', err);
+    }
+  };
+
   const groupedByCategory = categories.map(category => ({
     category,
     movies: movies.filter(movie =>
@@ -33,6 +76,106 @@ export default function MoviesPage() {
   return (
     <div style={{ padding: '20px', backgroundColor: '#111', minHeight: '100vh' }}>
       <h1 style={{ color: '#fff', fontSize: '32px', marginBottom: '30px' }}>Films/Séries par catégorie</h1>
+
+      <button
+        onClick={() => setShowForm(!showForm)}
+        style={{
+          marginBottom: '20px',
+          padding: '10px 20px',
+          backgroundColor: '#e50914',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}
+      >
+        {showForm ? 'Annuler' : 'Ajouter un film'}
+      </button>
+
+      {showForm && (
+        <form
+          onSubmit={handleCreateMovie}
+          style={{
+            backgroundColor: '#222',
+            padding: '20px',
+            borderRadius: '8px',
+            marginBottom: '40px',
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            maxWidth: '400px'
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Titre du film"
+            value={newMovie.title}
+            onChange={e => setNewMovie({ ...newMovie, title: e.target.value })}
+            required
+          />
+          <textarea
+            placeholder="Description"
+            value={newMovie.description}
+            onChange={e => setNewMovie({ ...newMovie, description: e.target.value })}
+            required
+          />
+          <input
+            type="number"
+            placeholder="Année de sortie"
+            value={newMovie.release_year}
+            onChange={e => setNewMovie({ ...newMovie, release_year: e.target.value })}
+            required
+          />
+          <input
+            type="number"
+            step="0.1"
+            placeholder="Note (ex: 7.5)"
+            value={newMovie.rating}
+            onChange={e => setNewMovie({ ...newMovie, rating: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            placeholder="URL de l'affiche"
+            value={newMovie.poster_url}
+            onChange={e => setNewMovie({ ...newMovie, poster_url: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            placeholder="URL de la bande-annonce"
+            value={newMovie.trailer_url}
+            onChange={e => setNewMovie({ ...newMovie, trailer_url: e.target.value })}
+          />
+          <select
+            value={newMovie.category_id}
+            onChange={e => setNewMovie({ ...newMovie, category_id: e.target.value })}
+            required
+          >
+            <option value="">-- Choisir une catégorie --</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
+          <button
+            type="submit"
+            style={{
+              backgroundColor: '#e50914',
+              color: 'white',
+              padding: '10px',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Ajouter
+          </button>
+        </form>
+      )}
 
       {groupedByCategory.map(({ category, movies }) => (
         <div key={category.id} style={{ marginBottom: '40px' }}>
