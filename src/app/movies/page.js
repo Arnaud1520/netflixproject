@@ -81,13 +81,15 @@ export default function MoviesPage() {
         onClick={() => setShowForm(!showForm)}
         style={{
           marginBottom: '20px',
-          padding: '10px 20px',
+          padding: '12px 24px',
           backgroundColor: '#e50914',
           color: 'white',
           border: 'none',
-          borderRadius: '5px',
+          borderRadius: '6px',
           cursor: 'pointer',
-          fontWeight: 'bold'
+          fontSize: '16px',
+          fontWeight: 'bold',
+          transition: 'background 0.3s ease'
         }}
       >
         {showForm ? 'Annuler' : 'Ajouter un film'}
@@ -97,62 +99,76 @@ export default function MoviesPage() {
         <form
           onSubmit={handleCreateMovie}
           style={{
-            backgroundColor: '#222',
-            padding: '20px',
-            borderRadius: '8px',
+            backgroundColor: '#1c1c1c',
+            padding: '25px',
+            borderRadius: '10px',
             marginBottom: '40px',
             color: 'white',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
-            maxWidth: '400px'
+            gap: '15px',
+            maxWidth: '450px',
+            boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)'
           }}
         >
-          <input
-            type="text"
-            placeholder="Titre du film"
-            value={newMovie.title}
-            onChange={e => setNewMovie({ ...newMovie, title: e.target.value })}
-            required
-          />
-          <textarea
-            placeholder="Description"
-            value={newMovie.description}
-            onChange={e => setNewMovie({ ...newMovie, description: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Année de sortie"
-            value={newMovie.release_year}
-            onChange={e => setNewMovie({ ...newMovie, release_year: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            step="0.1"
-            placeholder="Note (ex: 7.5)"
-            value={newMovie.rating}
-            onChange={e => setNewMovie({ ...newMovie, rating: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="URL de l'affiche"
-            value={newMovie.poster_url}
-            onChange={e => setNewMovie({ ...newMovie, poster_url: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="URL de la bande-annonce"
-            value={newMovie.trailer_url}
-            onChange={e => setNewMovie({ ...newMovie, trailer_url: e.target.value })}
-          />
+          {[
+            { type: 'text', placeholder: 'Titre du film', key: 'title' },
+            { type: 'textarea', placeholder: 'Description', key: 'description' },
+            { type: 'number', placeholder: 'Année de sortie', key: 'release_year' },
+            { type: 'number', step: '0.1', placeholder: 'Note (ex: 7.5)', key: 'rating' },
+            { type: 'text', placeholder: "URL de l'affiche", key: 'poster_url' },
+            { type: 'text', placeholder: 'URL de la bande-annonce', key: 'trailer_url' },
+          ].map(field =>
+            field.type === 'textarea' ? (
+              <textarea
+                key={field.key}
+                placeholder={field.placeholder}
+                value={newMovie[field.key]}
+                onChange={e => setNewMovie({ ...newMovie, [field.key]: e.target.value })}
+                required
+                style={{
+                  backgroundColor: '#2a2a2a',
+                  color: '#fff',
+                  border: '1px solid #444',
+                  borderRadius: '5px',
+                  padding: '10px',
+                  fontSize: '14px',
+                  resize: 'vertical'
+                }}
+              />
+            ) : (
+              <input
+                key={field.key}
+                type={field.type}
+                step={field.step}
+                placeholder={field.placeholder}
+                value={newMovie[field.key]}
+                onChange={e => setNewMovie({ ...newMovie, [field.key]: e.target.value })}
+                required
+                style={{
+                  backgroundColor: '#2a2a2a',
+                  color: '#fff',
+                  border: '1px solid #444',
+                  borderRadius: '5px',
+                  padding: '10px',
+                  fontSize: '14px'
+                }}
+              />
+            )
+          )}
+
           <select
             value={newMovie.category_id}
             onChange={e => setNewMovie({ ...newMovie, category_id: e.target.value })}
             required
+            style={{
+              backgroundColor: '#2a2a2a',
+              color: '#fff',
+              border: '1px solid #444',
+              borderRadius: '5px',
+              padding: '10px',
+              fontSize: '14px'
+            }}
           >
             <option value="">-- Choisir une catégorie --</option>
             {categories.map(cat => (
@@ -165,11 +181,13 @@ export default function MoviesPage() {
             style={{
               backgroundColor: '#e50914',
               color: 'white',
-              padding: '10px',
-              borderRadius: '4px',
+              padding: '12px',
+              borderRadius: '6px',
               fontWeight: 'bold',
+              fontSize: '16px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'background 0.3s ease'
             }}
           >
             Ajouter
